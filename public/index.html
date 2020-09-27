@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@5.x/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+  <!-- <link rel="stylesheet" href="./style.css"> -->
+  <title>todoリスト</title>
+</head>
+<body>
+
+  <div id="app">
+    <top-page></top-page>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+  <script src="https://unpkg.com/vue-router@3.0.1"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+  <script type="text/x-template" id="top-page">
+
+    <v-app>
+
+<!-- ヘッダーバー -->
+
+      <v-app-bar app flat dark>
+        <v-btn fab text small @click="changes.drawer = !changes.drawer">
+          <v-icon>mdi-view-headline</v-icon>
+        </v-btn>
+        <v-toolbar-title class="text-uppercase display-2">
+          <span class="font-weight-light">Todo</span>
+          <span>list</span>
+        </v-toolbar-title>
+        <v-spacer></v-spacer>
+        <v-btn text color="grey" class="text--lighten-2">
+          <span>サインアウト</span>
+          <v-icon right>mdi-exit-to-app</v-icon>
+        </v-btn>
+      </v-app-bar>
+
+<!-- ナビゲーションバー -->
+
+      <v-navigation-drawer app v-model="changes.drawer">
+        <v-container class="py-0" v-for="archive in archives" :key="archive._id">
+        <v-card flat hover>
+          <v-row>
+
+            <v-menu offset-y open-on-hover nudge-right="63">
+              <v-card>
+                <v-container class="py-0">
+                  <v-row>
+                    <v-col style="white-space: pre-wrap;">
+                      <p>{{ archive.descript }}</p>
+                    </v-col>
+                    <v-col class="text-right" align-self="end">
+                      <v-btn text @click.stop="goToList(archive._id)">
+                        <v-icon>mdi-transfer-right</v-icon>
+                      </v-btn>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-card>
+
+              <template v-slot:activator="{on}">
+                <v-col v-on="on" cols="9">
+                  {{ archive.title }}
+                  <hr class="" style="opacity: .3;" :color="ratingLineStyle[archive.rating]"></hr>
+                </v-col>
+              </template>
+            </v-menu>
+
+            <v-col cols="2">
+              <v-btn @click.stop="deleteTodo(archive._id)" text small>
+                <v-icon>mdi-trash-can</v-icon>
+              </v-btn>
+            </v-col>
+
+          </v-row>
+          </v-card>
+          <v-row>
+            <v-divider></v-divider>
+          </v-row>
+        </v-container>
+      </v-navigation-drawer>
+
+<!-- タイトルメッセージ -->
+
+      <v-main>
+
+      <h2 align="center">I made it by practice vuetify!</h2>
+
+<!-- 新規作成ボタン -->
+
+      <v-row justify="center">
+        <v-btn @click="changes.addTodoDialog = true"
+         height="100"
+         width="100"
+         text
+         class="my-6">
+            <v-icon size="100">mdi-comment-edit-outline</v-icon>
+        </v-btn>
+      </v-row>
+
+<!-- 新規作成フォームダイアログ -->
+
+      <v-dialog v-model="changes.addTodoDialog" max-width="700">
+        <v-card flat class="px-5">
+          <v-form>
+            <v-container>
+              <v-row justify="start">
+                <v-btn @click.stop="changes.addTodoDialog = false" text>
+                  <v-icon>mdi-arrow-left</v-icon>
+                </v-btn>
+              </v-row>
+
+              <v-row>
+                <v-text-field prepend-icon="mdi-draw" label="タイトル" v-model="todoData.title" autocomplete="off" clearable/>
+              </v-row>
+
+              <v-row>
+                <v-col cols="12">
+                  <v-textarea rows="5" prepend-icon="mdi-file-document-edit-outline" label="詳細" v-model="todoData.descript" autocomplete="off" clearable/>
+                </v-col>
+                <v-col cols="5">
+                  <v-text-field prepend-icon="mdi-calendar-check" label="期限" v-model="todoData.limit" autocomplete="off" @click="changes.calendar = !changes.calendar" clearable/>
+                  <v-dialog width="300" v-model="changes.calendar">
+                    <v-date-picker v-model="todoData.limit" @click:date="changes.calendar = false"/>
+                  </v-dialog>
+                </v-col>
+                <v-col cols="7">
+                  <v-select
+                   prepend-icon="mdi-tag-multiple-outline"
+                  :items="tagItems"
+                  v-model="todoData.tags"
+                  label="カテゴリ"
+                  clearable
+                  multiple
+                  >
+                  </v-select>
+                </v-col>
+              </v-row>
+
+              <v-row>
+                <v-col>
+                  <v-rating v-model="rating"></v-rating>
+                </v-col>
+                <v-col align-self="center">
+                  <v-chip :class="ratingStyle[rating]" class="mb-0" outlined>
+                    {{ ratingComment[rating] }}
+                  </v-chip>
+                </v-col>
+              </v-row>
+
+              <v-row>
+                <v-col cols="9" sm="10">
+                 <v-chip v-for="(tag, idx) in todoData.tags"
+                  :key="idx"
+                  close
+                  label
+                  class="mr-1 mb-1"
+                  @click:close="removeTag(tag)"
+                  >
+                  {{ tag }}
+                  </v-chip>
+                </v-col>
+                <v-col cols="1">
+                  <v-btn dark depressed color="success" @click.stop="addTodo(rating)">
+                    <v-icon left>mdi-database-import</v-icon>
+                    <span class="font-weight-bold">保存</span>
+                  </v-btn>
+                </v-col>
+              </v-row>
+
+            </v-container>
+          </v-form>
+        </v-card>
+      </v-dialog>
+
+<!-- todo表示部分と削除、編集の処理ダイアログのコンテナー -->
+
+        <v-container class="py-0">
+          <v-row justify="center">
+            <v-col cols="10" sm="5" md="4" max-width="300" v-for="(todo, idx) in todos" :key="todo._id">
+              <v-card outlined hover
+               @click.stop="updBtn(idx)"
+               >
+
+<!-- ここから「変更」ダイアログ -->
+
+                <v-dialog v-model="isActives[idx]" max-width="700">
+                  <v-card class="px-5">
+                    <v-form>
+                      <v-container>
+
+                        <v-row justify="start">
+                          <v-btn @click.stop="updBtn(idx)" text>
+                            <v-icon>mdi-arrow-left</v-icon>
+                          </v-btn>
+                        </v-row>
+                        <v-row>
+                          <v-text-field prepend-icon="mdi-draw"
+                          v-model="updateTodoData.title"
+                          :label="!todo.title ? 'タスクを入力' : todo.title"
+                          autocomplete="off"
+                          clearable/>
+                        </v-row>
+
+                        <v-row>
+                          <v-col cols="12">
+                            <v-textarea rows="5"
+                             prepend-icon="mdi-file-document-edit-outline"
+                             :label="!todo.descript ? '詳細を入力' : todo.descript"
+                             v-model="updateTodoData.descript"
+                             autocomplete="off"
+                             clearable/>
+                          </v-col>
+                          <v-col cols="5">
+                            <v-text-field
+                             prepend-icon="mdi-calendar-check"
+                             :label="!todo.limitDate ? '期限を入力' : todo.limitDate"
+                             v-model="updateTodoData.limit"
+                             autocomplete="off"
+                             @click="changes.updateCalendar = true"
+                             clearable/>
+                            <v-dialog width="300" v-model="changes.updateCalendar">
+                              <v-date-picker v-model="updateTodoData.limit" @click:date="changes.updateCalendar = false"/>
+                            </v-dialog>
+                          </v-col>
+
+                          <v-col cols="7">
+                            <v-select
+                             prepend-icon="mdi-tag-multiple-outline"
+                            :items="tagItems"
+                            :label="!String(todo.tags) ? 'カテゴリ' : String(todo.tags)"
+                            v-model="updateTodoData.tags"
+                            @click="firstViewTagChips = false"
+                            clearable
+                            multiple
+                            >
+                            </v-select>
+                          </v-col>
+                        </v-row>
+
+                        <v-row>
+                          <v-col>
+                            <v-rating v-model="todo.rating"></v-rating>
+                          </v-col>
+                          <v-col align-self="center">
+                            <v-chip :class="ratingStyle[todo.rating]" class="mb-0" outlined>
+                              {{ ratingComment[todo.rating] }}
+                            </v-chip>
+                          </v-col>
+                        </v-row>
+
+                        <v-row>
+                          <v-col cols="9" sm="10">
+                           <v-chip
+                            v-if="firstViewTagChips"
+                            v-for="(tag, idx) in todo.tags" :key="idx"
+                            class="mr-1"
+                            label
+                            >
+                            {{ tag }}
+                           </v-chip>
+                           <v-chip
+                            v-if="!firstViewTagChips"
+                            v-for="(tag, idx) in updateTodoData.tags" :key="idx"
+                            v-model="updateTodoData.tags"
+                            @click:close="removeUpdTag(tag)"
+                            class="mr-1 mb-1"
+                            label
+                            close
+                            >
+                            {{ tag }}
+                           </v-chip>
+                          </v-col>
+                          <v-col cols="1">
+                          <v-btn fab
+                          @click.stop="updateTodo(todo._id, idx, todo.rating)"
+                          color="primary lighten-1"
+                            >
+                              <v-icon>mdi-circle-edit-outline</v-icon>
+                            </v-btn>
+                          </v-col>
+                        </v-row>
+
+                      </v-container>
+                    </v-form>
+                  </v-card>
+                </v-dialog>
+
+<!-- Todo表示部分 -->
+                  <v-card-title class="py-0">
+                    <v-checkbox @click.stop="goToArchive(todo._id)"></v-checkbox>
+                    {{ todo.title }}
+                  </v-card-title>
+                  <hr class="mx-5" style="opacity: .3;" :color="ratingLineStyle[todo.rating]"></hr>
+
+<!-- ドロップダウンメニュー -->
+
+                <v-menu open-on-hover>
+                  <v-card>
+                    <v-card-text v-show="todo.descript" style="white-space: pre-wrap;">
+                      <p class="mb-0">{{ todo.descript }}</p>
+                    </v-card-text>
+
+                    <v-card-text>
+                      <v-rating v-model="todo.rating" readonly dense></v-rating>
+                      <p class="mb-0" :class="ratingStyle[todo.rating]">{{ todo.comment }}</p>
+                    </v-card-text>
+
+                    <v-card-text v-show="todo.limitDate">
+                      {{ '予定日: ' + todo.limitDate }}
+                    </v-card-text>
+
+                    <v-card-text v-show="todo.tags">
+                      <v-chip
+                       v-for="(tag, idx) in todo.tags"
+                       :key="idx"
+                       label
+                       class="mr-1 mb-1"
+                       >
+                       {{ tag }}
+                      </v-chip>
+                    </v-card-text>
+
+                  </v-card>
+
+  <!-- アクティベーター -->
+
+                  <template v-slot:activator="{on}">
+                    <v-btn v-on="on" text>
+                      <v-icon>mdi-chevron-down</v-icon>
+                    </v-btn>
+                  </template>
+                </v-menu>
+
+
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-container>
+
+      </v-main>
+    </v-app>
+  </script>
+
+  <script src="./main.js"></script>
+</body>
+
+</html>
