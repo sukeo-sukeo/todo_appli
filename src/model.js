@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 
 const TodoListShema = mongoose.model('todoLists', {
+  username: String,
   title:  String,
   descript: String,
   addDate: String,
@@ -11,6 +12,7 @@ const TodoListShema = mongoose.model('todoLists', {
  })
 
 const ArchiveShema = mongoose.model('archives', {
+  username: String,
   title:  String,
   descript: String,
   addDate: String,
@@ -20,4 +22,9 @@ const ArchiveShema = mongoose.model('archives', {
   tags: Array
  })
 
-module.exports = {TodoListShema, ArchiveShema}
+const UserSchema = mongoose.model('users', {
+  username: String,
+  password: String
+})
+
+module.exports = {TodoListShema, ArchiveShema, UserSchema}

@@ -36,11 +36,68 @@
           <span>list</span>
         </v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-btn text color="grey" class="text--lighten-2">
-          <span>サインアウト</span>
-          <v-icon right>mdi-exit-to-app</v-icon>
+        <v-btn
+         text
+         color="grey"
+         class="text--lighten-2"
+         @click="openLoginDialog"
+         >
+          <v-icon righ>mdi-exit-to-app</v-icon>
+          <span>{{ loginMsg }}</span>
         </v-btn>
       </v-app-bar>
+
+<!-- ログインダイアログ -->
+
+      <v-dialog v-model="changes.login">
+        <v-card>
+          <v-form ref="form_check">
+            <v-container>
+              <h2>ログイン</h2>
+              <v-row justify="center">
+                <v-col cols="11">
+                  <v-text-field label="ユーザー名"
+                   type="text"
+                   prepend-icon="mdi-account"
+                   v-model="userData.username"
+                   autocomplete="off"
+                   counter="10"
+                   :rules="usernameRules"
+                  />
+                </v-col>
+              </v-row>
+              <v-row justify="center">
+                <v-col cols="11">
+                  <v-text-field label="パスワード"
+                   :type="showPassword ? 'text' : 'password'"
+                   :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                   @click:append="showPassword = !showPassword"
+                   prepend-icon="mdi-lock"
+                   autocomplete="off"
+                   v-model="userData.password"
+                   :rules="passwordRules"
+                  />
+                </v-col>
+              </v-row>
+              <v-row justify="center">
+                <v-col cols="10">
+                  {{ isLoginSuccessOrFailureMessage }}
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col class="ml-8">
+                  <v-btn class="success" @click="login">ログイン</v-btn>
+                </v-col>
+                <v-spacer></v-spacer>
+                <v-col>
+                  <v-btn class="primary" @click="register">新規登録</v-btn>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-form>
+        </v-card>
+      </v-dialog>
+
 
 <!-- ナビゲーションバー -->
 
@@ -91,7 +148,8 @@
 
       <v-main>
 
-      <h2 align="center">I made it by practice vuetify!</h2>
+      <h2 align="center" v-if="isLogin">{{ username }}さんのTodoList</h2>
+      <h2 align="center" v-if="!isLogin">ログインしてください</h2>
 
 <!-- 新規作成ボタン -->
 
@@ -100,7 +158,9 @@
          height="100"
          width="100"
          text
-         class="my-6">
+         class="my-6"
+         v-if="isLogin"
+         >
             <v-icon size="100">mdi-comment-edit-outline</v-icon>
         </v-btn>
       </v-row>
