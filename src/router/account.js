@@ -31,7 +31,6 @@ router.post('/login', (req, res) => {
   User.find({
     username: req.body.username,
   }, async (err, docs) => {
-    console.log(docs);
     if (!docs.length) {
       res.send({
         msg: 'ユーザー名 か パスワード が間違っています',

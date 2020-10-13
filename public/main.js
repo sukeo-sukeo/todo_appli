@@ -1,3 +1,4 @@
+
 const TopPage = {
   template: '#top-page',
   data: function() {
