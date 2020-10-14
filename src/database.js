@@ -4,11 +4,16 @@ const mongoDB = process.env.MONGODB_URI || process.env.DB_PATH
 const options = {
   useUnifiedTopology : true,
   useNewUrlParser: true,
-  auth: {
-     authSource: 'admin'
-    },
-    user: process.env.DB_USER,
-    pass: process.env.DB_PASS
+}
+
+if (!process.env.MONGODB_URI) {
+  options.push({
+    auth: {
+       authSource: 'admin'
+      },
+      user: process.env.DB_USER,
+      pass: process.env.DB_PASS
+  })
 }
 
 mongoose.connect(mongoDB, options)
