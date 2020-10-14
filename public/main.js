@@ -16,7 +16,8 @@ const TopPage = {
         value => !!value || `入力必須項目です`,
         value => /^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?\d)[a-zA-Z\d]{8,32}$/.test(value) || `半角の大文字/小文字/数字をそれぞれ1つ以上含む8文字以上32文字以下の文字列`
       ],
-      baseURL: 'http://localhost:3000',
+      baseURL: 'https://whispering-temple-91855.herokuapp.com',
+      // baseURL: 'http://localhost:3000',
       isActives: [],
       isActivesMenue: [],
       firstViewTagChips: true,
