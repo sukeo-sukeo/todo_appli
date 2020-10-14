@@ -7,14 +7,12 @@ const options = {
 }
 
 if (!process.env.MONGODB_URI) {
-  options.push({
-    auth: {
-       authSource: 'admin'
-      },
-      user: process.env.DB_USER,
-      pass: process.env.DB_PASS
-  })
+  options.auth = {authSource: 'admin'}
+  options.user = process.env.DB_USER
+  options.pass = process.env.DB_PASS
 }
+
+console.log(options);
 
 mongoose.connect(mongoDB, options)
 mongoose.Promise = global.Promise //調べる
