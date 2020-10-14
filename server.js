@@ -5,7 +5,7 @@ app.disable('x-powered-by')
 const bodyParser = require('body-parser')
 require('dotenv').config()
 
-const port = process.env.SERVER_PORT || 3000
+const port = process.env.PORT || process.env.SERVER_PORT
 
 const db = require('./src/database')
 
