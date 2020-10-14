@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const mongoDB = process.env.DB_PATH || 'mongodb://localhost:27017/todo'
+const mongoDB = process.env.MONGODB_URI || process.env.DB_PATH
 
 const options = {
   useUnifiedTopology : true,
