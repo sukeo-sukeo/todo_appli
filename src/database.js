@@ -12,8 +12,6 @@ if (!process.env.MONGODB_URI) {
   options.pass = process.env.DB_PASS
 }
 
-console.log(options);
-
 mongoose.connect(mongoDB, options)
 mongoose.Promise = global.Promise //調べる
 

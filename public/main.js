@@ -3,6 +3,7 @@ const TopPage = {
   template: '#top-page',
   data: function() {
     return {
+      isSmartphone: Boolean,
       loginMsg: 'ログイン',
       showPassword: false,
       username: '',
@@ -16,8 +17,7 @@ const TopPage = {
         value => !!value || `入力必須項目です`,
         value => /^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?\d)[a-zA-Z\d]{8,32}$/.test(value) || `半角の大文字/小文字/数字をそれぞれ1つ以上含む8文字以上32文字以下の文字列`
       ],
-      baseURL: 'https://whispering-temple-91855.herokuapp.com',
-      // baseURL: 'http://localhost:3000',
+      baseURL: '',
       isActives: [],
       isActivesMenue: [],
       firstViewTagChips: true,
@@ -297,8 +297,17 @@ const TopPage = {
     }
   },
   created: function() {
-    // this.getTodoData()
-    // this.getArchiveData()
+    if (navigator.userAgent.match(/(iPhone|iPad|iPod|Android)/i)) {
+      this.isSmartphone = true
+    } else {
+      this.isSmartphone = false
+    }
+    if (location.hostname === 'localhost') {
+      this.baseURL = 'http://localhost:3000'
+    } else {
+      this.baseURL = 'https://whispering-temple-91855.herokuapp.com'
+    }
+    console.log(this.baseURL);
   }
 }
 

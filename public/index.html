@@ -33,7 +33,6 @@
         </v-btn>
         <v-toolbar-title class="text-uppercase display-2">
           <span class="font-weight-light">Todo</span>
-          <span>list</span>
         </v-toolbar-title>
         <v-spacer></v-spacer>
         <v-btn
@@ -49,7 +48,7 @@
 
 <!-- ログインダイアログ -->
 
-      <v-dialog v-model="changes.login">
+      <v-dialog v-model="changes.login" max-width="700">
         <v-card>
           <v-form ref="form_check">
             <v-container>
@@ -362,7 +361,7 @@
 
 <!-- ドロップダウンメニュー -->
 
-                <v-menu open-on-hover>
+                <v-menu>
                   <v-card>
                     <v-card-text v-show="todo.descript" style="white-space: pre-wrap;">
                       <p class="mb-0">{{ todo.descript }}</p>
