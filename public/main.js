@@ -304,6 +304,8 @@ const TopPage = {
     }
     if (location.hostname === 'localhost') {
       this.baseURL = 'http://localhost:3000'
+      this.isLogin = true
+      this.username = 'テスト'
     } else {
       this.baseURL = 'https://whispering-temple-91855.herokuapp.com'
     }
