@@ -361,15 +361,15 @@
                     <v-checkbox @click.stop="goToArchive(todo._id)"></v-checkbox>
                     {{ todo.title }}
                   </v-card-title>
+                  <v-card-text v-show="todo.descript" style="white-space: pre-wrap;">
+                    <p class="mb-0">{{ todo.descript }}</p>
+                  </v-card-text>
                   <hr class="mx-5" style="opacity: .3;" :color="ratingLineStyle[todo.rating]"></hr>
 
 <!-- ドロップダウンメニュー -->
 
                 <v-menu>
                   <v-card>
-                    <v-card-text v-show="todo.descript" style="white-space: pre-wrap;">
-                      <p class="mb-0">{{ todo.descript }}</p>
-                    </v-card-text>
 
                     <v-card-text>
                       <v-rating v-model="todo.rating" readonly dense></v-rating>
@@ -380,7 +380,7 @@
                       {{ '予定日: ' + todo.limitDate }}
                     </v-card-text>
 
-                    <v-card-text v-show="todo.tags">
+                    <!-- <v-card-text v-show="todo.tags">
                       <v-chip
                        v-for="(tag, idx) in todo.tags"
                        :key="idx"
@@ -389,7 +389,7 @@
                        >
                        {{ tag }}
                       </v-chip>
-                    </v-card-text>
+                    </v-card-text> -->
 
                   </v-card>
 

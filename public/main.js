@@ -314,9 +314,9 @@ const TopPage = {
       const cookieData = this.splitCookieToObject(document.cookie)
       axios.post(this.baseURL + '/account/login', cookieData)
       .then((res) => {
+        this.username = res.data.username
         this.isLogin = true
         this.loginMsg = 'ログアウト'
-        this.username = res.data.username
         this.getTodoData()
       })
       .then(() => {
