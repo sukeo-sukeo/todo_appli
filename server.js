@@ -13,7 +13,7 @@ const db = require('./src/database')
 
 app.set('trust proxy', 1)
 const session_opt = {
-  secret: "keyboard cat",
+  secret: "keyboard cat my-todo-application",
   resave: false,
   saveUninitialized: true,
   name: 'sessionId',
