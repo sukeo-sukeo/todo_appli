@@ -102,7 +102,10 @@ const TopPage = {
           this.todos = []
           this.archives = []
           this.registerScreenInit()
-          this.$refs.form_check.resetValidation()
+          document.cookie = "ssid=; max-age=0"
+          if (this.$refs.form_check) {
+            this.$refs.form_check.resetValidation()
+          }
           return
         } else {
           return
@@ -121,6 +124,7 @@ const TopPage = {
             this.isLogin = true
             this.isLoginSuccessOrFailureMessage = res.data.msg
             this.username = res.data.username
+            document.cookie = `ssid=${res.data.id}`
             this.loginMsg = 'ログアウト'
             setTimeout(() => this.changes.login = false, 1000)
           }
@@ -294,9 +298,34 @@ const TopPage = {
     removeUpdTag: function(item) {
       this.updateTodoData.tags.splice(this.updateTodoData.tags.indexOf(item), 1)
       this.updateTodoData.tags = [...this.updateTodoData.tags]
+    },
+    splitCookieToObject: function(cookies) {
+      const cookieObj = {}
+      cookies.split('; ').forEach(cookie => {
+        const key = cookie.split('=')[0]
+        const value = cookie.split('=')[1]
+        cookieObj[key] = value
+      })
+      return cookieObj
     }
   },
   created: function() {
+    if (!!document.cookie) {
+      const cookieData = this.splitCookieToObject(document.cookie)
+      axios.post(this.baseURL + '/account/login', cookieData)
+      .then((res) => {
+        this.isLogin = true
+        this.loginMsg = 'ログアウト'
+        this.username = res.data.username
+        this.getTodoData()
+      })
+      .then(() => {
+        this.getArchiveData()
+      })
+      .catch(err => {
+        console.log(err);
+      })
+    }
     if (navigator.userAgent.match(/(iPhone|iPad|iPod|Android)/i)) {
       this.isSmartphone = true
     } else {
@@ -304,8 +333,6 @@ const TopPage = {
     }
     if (location.hostname === 'localhost') {
       this.baseURL = 'http://localhost:3000'
-      this.isLogin = true
-      this.username = 'テスト'
     } else {
       this.baseURL = 'https://whispering-temple-91855.herokuapp.com'
     }
